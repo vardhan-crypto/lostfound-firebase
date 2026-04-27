@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Digital Lost & Found Platform — Report, search, and recover lost items." />
+  <title>Lost &amp; Found Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <div class="logo" id="logo">
+        <span class="logo-icon">📦</span>
+        <span class="logo-text">Lost<span class="logo-accent">&amp;</span>Found</span>
+      </div>
+      <div class="header-actions">
+        <span class="user-badge" id="userBadge" style="display:none;"></span>
+        <button class="btn btn-ghost" id="themeToggle" title="Toggle dark/light mode">🌙</button>
+        <button class="btn btn-outline" id="logoutBtn" style="display:none;" onclick="logoutUser()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- ========== AUTH SECTION ========== -->
+    <section class="auth-section" id="authSection">
+      <div class="auth-card glass-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+          <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form class="auth-form" id="loginForm" onsubmit="loginUser(event)">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter password" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form class="auth-form" id="registerForm" style="display:none;" onsubmit="registerUser(event)">
+          <div class="form-group">
+            <label for="regDisplayName">Display Name</label>
+            <input type="text" id="regDisplayName" placeholder="Choose a display name" required />
+          </div>
+          <div class="form-group">
+            <label for="regEmail">Email</label>
+            <input type="email" id="regEmail" placeholder="Enter your email" required />
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" placeholder="Choose a password (min 6 chars)" required minlength="6" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="registerSubmitBtn">Create Account</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========== APP SECTION (hidden until logged in) ========== -->
+    <section class="app-section" id="appSection" style="display:none;">
+
+      <!-- Add Item Form -->
+      <div class="form-card glass-card">
+        <h2 class="section-title">Report an Item</h2>
+        <form id="itemForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="itemTitle">Title *</label>
+              <input type="text" id="itemTitle" name="title" placeholder="e.g. Blue Backpack" required />
+            </div>
+            <div class="form-group">
+              <label for="itemCategory">Category</label>
+              <input type="text" id="itemCategory" name="category" placeholder="e.g. Bags, Electronics" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="itemDescription">Description</label>
+            <textarea id="itemDescription" name="description" placeholder="Describe the item..." rows="3"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="itemLocation">Location</label>
+              <input type="text" id="itemLocation" name="location" placeholder="Where was it lost/found?" />
+            </div>
+            <div class="form-group">
+              <label for="itemStatus">Status *</label>
+              <select id="itemStatus" name="status" required>
+                <option value="">Select Status</option>
+                <option value="lost">Lost</option>
+                <option value="found">Found</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="itemEmail">Email *</label>
+              <input type="email" id="itemEmail" name="email" placeholder="contact@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="itemMobile">Mobile Number *</label>
+              <input type="tel" id="itemMobile" name="mobileNumber" placeholder="+91 9876543210" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="itemImage">Image</label>
+            <input type="file" id="itemImage" name="image" accept="image/*" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="addItemBtn">
+            <span class="btn-icon">➕</span> Add Item
+          </button>
+        </form>
+      </div>
+
+      <!-- Toolbar: Search & Filters -->
+      <div class="toolbar" id="toolbar">
+        <div class="search-box">
+          <input type="text" id="search" placeholder="Search by title, description, category, location..." />
+          <button class="btn btn-primary" id="searchBtn" onclick="loadItems()">
+            <span class="btn-icon">🔍</span> Search
+          </button>
+        </div>
+        <div class="filter-bar" id="filterBar">
+          <button class="filter-btn active" id="filterAll" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" id="filterLost" onclick="setFilter('lost')">🔴 Lost</button>
+          <button class="filter-btn" id="filterFound" onclick="setFilter('found')">🟢 Found</button>
+          <button class="filter-btn" id="filterReturned" onclick="setFilter('returned')">🔵 Returned</button>
+          <button class="filter-btn" id="filterClaimed" onclick="setFilter('claimed')">🟣 Claimed</button>
+        </div>
+      </div>
+
+      <!-- Items Grid -->
+      <div class="items-grid" id="items"></div>
+
+    </section>
+  </main>
+
+  <!-- ========== ITEM DETAIL POPUP MODAL ========== -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-card glass-card" id="detailModalCard">
+      <button class="modal-close" id="detailModalClose" onclick="closeDetailModal()">&times;</button>
+      <div class="modal-body" id="detailModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ========== EDIT ITEM MODAL ========== -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-card glass-card" id="editModalCard">
+      <button class="modal-close" id="editModalClose" onclick="closeEditModal()">&times;</button>
+      <h2 class="section-title" style="margin-bottom:18px;">Edit Item</h2>
+      <form id="editForm" onsubmit="submitEdit(event)">
+        <input type="hidden" id="editItemId" />
+        <div class="form-group">
+          <label for="editTitle">Title *</label>
+          <input type="text" id="editTitle" required />
+        </div>
+        <div class="form-group">
+          <label for="editDescription">Description</label>
+          <textarea id="editDescription" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editCategory">Category</label>
+            <input type="text" id="editCategory" />
+          </div>
+          <div class="form-group">
+            <label for="editLocation">Location</label>
+            <input type="text" id="editLocation" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editEmail">Email *</label>
+            <input type="email" id="editEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="editMobile">Mobile Number *</label>
+            <input type="tel" id="editMobile" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="editSubmitBtn">
+          <span class="btn-icon">💾</span> Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== USER PROFILE POPUP MODAL ========== -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal-card glass-card modal-card-wide" id="userModalCard">
+      <button class="modal-close" id="userModalClose" onclick="closeUserModal()">&times;</button>
+      <div class="modal-body" id="userModalBody">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container for notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase SDKs (compat mode for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- App Scripts -->
+  <script src="firebase.js"></script>
+  <script src="app.js"></script>
+
+</body>
+
+</html>
